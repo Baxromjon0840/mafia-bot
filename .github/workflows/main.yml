@@ -1,0 +1,28 @@
+name: Deploy Telegram Mafia Bot
+
+on:
+  push:
+    branches:
+      - main  # mafia main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Kodni klonlash
+        uses: actions/checkout@v3
+
+      - name: Python o'rnatish
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'  # kerakli python versiya
+
+      - name: Kutubxonalarni o'rnatish
+        run: pip install pyTelegramBotAPI
+
+      - name: Botni ishga tushirish
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          nohup python main.py &
