@@ -1,25 +1,35 @@
-name: mafia bot
+name: Deploy Telegram Mafia Bot (Persistent)
 
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  run-bot:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Repositoriyni yuklash
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Python o‘rnatish
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Kerakli kutubxonalarni o‘rnatish
-      run: pip install pyTelegramBotAPI
+      - name: Install dependencies
+        run: pip install pyTelegramBotAPI
 
-    - name: Botni ishga tushirish
-      run: python main.py
+      - name: Run bot persistently
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          # Kill old python processes (agar mavjud bo'lsa)
+          pkill -f "python main.py" || true
+
+          # Botni fon rejimida ishga tushirish
+          nohup python main.py > bot.log 2>&1 &
+
+      - name: Show running processes (for debugging)
+        run: ps aux | grep python
